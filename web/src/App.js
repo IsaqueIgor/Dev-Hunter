@@ -1,38 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from './services/api.js';
 
 import './global.css';
 import './App.css';
+import './SideBar.css';
 
+import DevForm from './components/DevForm/index.js'
+import DevItem from './components/DevItem/index.js'
 
 function App() {
+  const [devs, setDevs] = useState([])
+
+  useEffect(() => {
+    async function loadDevs() {
+        const response = await api.get('/devs')
+
+        setDevs(response.data)
+    }
+
+    loadDevs()
+  }, []);
+
+  async function handleAddDev(data) {
+    const response = await api.post('/devs', data)
+
+    setDevs([...devs, response.data])
+  }
+
   return (
-    <div id="App">
+    <div id="app">
+            <aside>
+                <strong>Cadastrar</strong>
+                <DevForm onSubmit={handleAddDev} />
+            </aside>
+            <main>
+                <ul>
+                    {devs.map(dev => (
+                        <DevItem key={dev._id} dev={dev}/>
+                    ))}
 
-      <aside>
-        <strong>Cadastrar</strong>
-        <form>
-          <div class="input-block">
-            <label htmlFor="">Github User</label>
-            <input name="github_username" id="github_username" required />
-          </div>
-          <div class="input-block">
-            <label htmlFor="">Github User</label>
-            <input name="github_username" id="github_username" required />
-         </div>
-          <div class="input-block">
-              <label htmlFor="">Github User</label>
-              <input name="github_username" id="github_username" required />
-          </div>
-        </form>
-      </aside>
-
-      <main>
-
-
-      </main>
-      
-    </div>
-  );
+                </ul>
+            </main>
+        </div>
+    );
 }
 
 export default App;
